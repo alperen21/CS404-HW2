@@ -1,11 +1,23 @@
 from ortools.sat.python import cp_model
+from ortools.sat.python import swig_helper
 from pprint import pprint 
+import ortools
 
 class Constraint:
     def __init__(self, x_coordinate, y_coordinate, value) -> None:
         self.x_coordinate = x_coordinate
         self.y_coordinate = y_coordinate
         self.value = value
+
+class SolutionCollector(cp_model.CpSolverSolutionCallback):
+    def __init__(self, variables):
+        cp_model.CpSolverSolutionCallback.__init__(self)
+        self.__variables = variables
+        self.solution_list = []
+
+    def on_solution_callback(self):
+        self.solution_list.append([self.Value(v) for v in self.__variables])
+
 
 class Board:
     def __init__(self) -> None:
@@ -102,14 +114,20 @@ class Board:
         self.leftMatrix = self.__createMatrix(self.__size - 1)
 
         self.__addConstraints()
-    
+
     def solve(self) -> None:
         """
         Solve the constraint satisfaction problem
         """
         self.__solutionMatrix = [[0 for _ in range(self.__size - 1)] for _ in range(self.__size - 1)]
         self.__solver = cp_model.CpSolver()
-        status = self.__solver.Solve(self.__model)
+        
+        # self.__solver.parameters.num_search_workers = 8
+        self.__solver.parameters.enumerate_all_solutions = True
+        # self.__solver.AddSolutionCallback(SolutionPrinter)
+
+        solutionCollector = SolutionCollector([self.rightMatrix[0][3]])
+        status = self.__solver.Solve(self.__model, solutionCollector)
 
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             print("left matrix")
@@ -129,6 +147,8 @@ class Board:
             pprint(self.__solutionMatrix)
         else:
             print('No solution found.')
+        
+        print(solutionCollector.solution_list)
 
 
     
