@@ -171,6 +171,12 @@ class Board:
     
     def getNumberOfBacktracks(self):
         return self.__solver.NumBooleans()
+
+    def getNumberOfVariables(self):
+        return len(self.leftMatrix) * len(self.leftMatrix[0]) + len(self.rightMatrix) * len(self.rightMatrix[0])
+    
+    def getNumberOfConstraints(self):
+        return len(self.__constraints)
     
     
 

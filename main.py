@@ -2,6 +2,7 @@ from Board.Board import Board, Constraint
 from cycle.Network import Graph
 from pprint import pprint
 import sys
+import time
 
 def getAcylicSolution(solutions):
     for solution in solutions:
@@ -22,14 +23,18 @@ def translate(solution):
     return solution
 
 def main():
+    start_time = time.time()
+
     board = Board()
     board.initialize(f"./inputs/{sys.argv[1]}.txt")
     solution_matrix = board.solve()
 
     pprint(translate(getAcylicSolution(solution_matrix)))
-    print(board.getNumberOfBacktracks())
 
-
+    print("number of backtracks:", board.getNumberOfBacktracks())
+    print("number of variables:",board.getNumberOfVariables())
+    print("number of constraints:", board.getNumberOfConstraints(), "s")
+    print("time:", time.time() - start_time)
 
 
     
