@@ -1,6 +1,7 @@
 from Board.Board import Board, Constraint
 from cycle.Network import Graph
 from pprint import pprint
+import sys
 
 def getAcylicSolution(solutions):
     for solution in solutions:
@@ -22,7 +23,7 @@ def translate(solution):
 
 def main():
     board = Board()
-    board.initialize("input.txt")
+    board.initialize(f"./inputs/{sys.argv[1]}.txt")
     solution_matrix = board.solve()
 
     pprint(translate(getAcylicSolution(solution_matrix)))
