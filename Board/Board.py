@@ -10,13 +10,29 @@ class Constraint:
         self.value = value
 
 class SolutionCollector(cp_model.CpSolverSolutionCallback):
-    def __init__(self, variables):
+    def __init__(self):
         cp_model.CpSolverSolutionCallback.__init__(self)
-        self.__variables = variables
-        self.solution_list = []
+        self.__left_variables = list()
+        self.__right_variables = list()
+        
+        self.left_solution_list = []
+        self.right_solution_list = []
 
+    def addLeftVariables(self, leftMatrix):
+        for row in leftMatrix:
+            for variable in row:
+                self.__left_variables.append(variable)
+    
+    
+    def addRightVariables(self, rightMatrix):
+        for row in rightMatrix:
+            for variable in row:
+                self.__right_variables.append(variable)
+    
+    
     def on_solution_callback(self):
-        self.solution_list.append([self.Value(v) for v in self.__variables])
+        self.left_solution_list.append([self.Value(v) for v in self.__left_variables])
+        self.right_solution_list.append([self.Value(v) for v in self.__right_variables])
 
 
 class Board:
@@ -115,6 +131,12 @@ class Board:
 
         self.__addConstraints()
 
+    def __literal_to_matrix(self, literal):
+        matrix = list()
+        for i in range(0, len(literal), self.__size-1):
+            matrix.append(literal[i:i+self.__size-1])
+        return matrix
+
     def solve(self) -> list:
         """
         Solve the constraint satisfaction problem
@@ -126,29 +148,52 @@ class Board:
         self.__solver.parameters.enumerate_all_solutions = True
         # self.__solver.AddSolutionCallback(SolutionPrinter)
 
-        solutionCollector = SolutionCollector([self.rightMatrix[0][3]])
+        solutionCollector = SolutionCollector()
+        solutionCollector.addLeftVariables(self.leftMatrix)
+        solutionCollector.addRightVariables(self.rightMatrix)
+
         status = self.__solver.Solve(self.__model, solutionCollector)
 
+        all_solutions = list()
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-            print("left matrix")
-            for x_coordinate, row in enumerate(self.leftMatrix):
-                for y_coordinate, elem in enumerate(row):
+            for left_solution, right_solution in zip(solutionCollector.left_solution_list, solutionCollector.right_solution_list):
+                combined = list()
 
-                    if self.__solver.Value(elem) == 1:
-                        self.__solutionMatrix[x_coordinate][y_coordinate] = -1#"\\"
+                for left_elem, right_elem in zip(left_solution, right_solution):
+                    if left_elem == 1:
+                        combined.append(-1)
+                    elif right_elem == 1:
+                        combined.append(1)
+                
+                all_solutions.append(self.__literal_to_matrix(combined))
 
-            print("right matrix")
-            for x_coordinate, row in enumerate(self.rightMatrix):
-                for y_coordinate, elem in enumerate(row):
+        return all_solutions
 
-                    if self.__solver.Value(elem) == 1:
-                        self.__solutionMatrix[x_coordinate][y_coordinate] = 1#"/"
+
+        # if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+        #     print("left matrix")
+        #     for x_coordinate, row in enumerate(self.leftMatrix):
+        #         for y_coordinate, elem in enumerate(row):
+
+        #             if self.__solver.Value(elem) == 1:
+        #                 self.__solutionMatrix[x_coordinate][y_coordinate] = -1#"\\"
+
+        #     print("right matrix")
+        #     for x_coordinate, row in enumerate(self.rightMatrix):
+        #         for y_coordinate, elem in enumerate(row):
+
+        #             if self.__solver.Value(elem) == 1:
+        #                 self.__solutionMatrix[x_coordinate][y_coordinate] = 1#"/"
             
-            pprint(self.__solutionMatrix)
-        else:
-            print('No solution found.')
+        #     pprint(self.__solutionMatrix)
+        # else:
+        #     print('No solution found.')
         
-        print(len(solutionCollector.solution_list))
+        # print("---->", len(solutionCollector.left_solution_list))
+
+        # for solution in solutionCollector.left_solution_list:
+        #     print(solution)
+        #     print()
 
         return self.__solutionMatrix
 
