@@ -115,7 +115,7 @@ class Board:
 
         self.__addConstraints()
 
-    def solve(self) -> None:
+    def solve(self) -> list:
         """
         Solve the constraint satisfaction problem
         """
@@ -135,21 +135,22 @@ class Board:
                 for y_coordinate, elem in enumerate(row):
 
                     if self.__solver.Value(elem) == 1:
-                        self.__solutionMatrix[x_coordinate][y_coordinate] = "\\"
+                        self.__solutionMatrix[x_coordinate][y_coordinate] = -1#"\\"
 
             print("right matrix")
             for x_coordinate, row in enumerate(self.rightMatrix):
                 for y_coordinate, elem in enumerate(row):
 
                     if self.__solver.Value(elem) == 1:
-                        self.__solutionMatrix[x_coordinate][y_coordinate] = "/"
+                        self.__solutionMatrix[x_coordinate][y_coordinate] = 1#"/"
             
             pprint(self.__solutionMatrix)
         else:
             print('No solution found.')
         
-        print(solutionCollector.solution_list)
+        print(len(solutionCollector.solution_list))
 
+        return self.__solutionMatrix
 
     
     
