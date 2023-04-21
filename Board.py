@@ -19,12 +19,22 @@ class Board:
         return [[self.__model.NewIntVar(0, 1, f"{i},{j}") for i in range(size)] for j in range(size)]
 
     def __filterInvalidCoordinates(self, coordinates : list) -> list:
+        """
+        filters out invalid coordinates
+
+        :param coordinates: coordinates to be filtered
+        """
         return list(filter(lambda coordinate: 
                 coordinate[0] >= 0 and coordinate[1] >= 0 and
                 coordinate[0] < self.__size-1 and coordinate[1] < self.__size-1,
                 coordinates))
     
     def __getWatchCoordinatesLeft(self, constraint : Constraint):
+        """
+        returns values that need to be watched in leftMatrix
+
+        :param constraint: the constraint that will generate the coordinates
+        """
         coordinates = [
             (constraint.x_coordinate, constraint.y_coordinate),
             (constraint.x_coordinate-1, constraint.y_coordinate-1),
@@ -33,6 +43,11 @@ class Board:
         return self.__filterInvalidCoordinates(coordinates)
 
     def __getWatchCoordinatesRight(self, constraint : Constraint):
+        """
+        returns values that need to be watched in rightMatrix
+
+        :param constraint: the constraint that will generate the coordinates
+        """
         coordinates = [
             (constraint.x_coordinate-1, constraint.y_coordinate),
             (constraint.x_coordinate, constraint.y_coordinate-1),
@@ -41,6 +56,9 @@ class Board:
         return self.__filterInvalidCoordinates(coordinates)
     
     def __addConstraints(self) -> None:
+        """
+        adds constraints to the model
+        """
         for constraint in self.__constraints:
             left_watch = self.__getWatchCoordinatesLeft(constraint)
             right_watch = self.__getWatchCoordinatesRight(constraint)
