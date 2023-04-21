@@ -1,4 +1,5 @@
 from ortools.sat.python import cp_model
+from pprint import pprint 
 
 class Constraint:
     def __init__(self, x_coordinate, y_coordinate, value) -> None:
@@ -106,19 +107,26 @@ class Board:
         """
         Solve the constraint satisfaction problem
         """
+        self.__solutionMatrix = [[0 for _ in range(self.__size - 1)] for _ in range(self.__size - 1)]
         self.__solver = cp_model.CpSolver()
         status = self.__solver.Solve(self.__model)
 
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             print("left matrix")
-            for row in self.leftMatrix:
-                for elem in row:
-                    print(elem, "->", self.__solver.Value(elem))
+            for x_coordinate, row in enumerate(self.leftMatrix):
+                for y_coordinate, elem in enumerate(row):
+
+                    if self.__solver.Value(elem) == 1:
+                        self.__solutionMatrix[x_coordinate][y_coordinate] = "\\"
 
             print("right matrix")
-            for row in self.rightMatrix:
-                for elem in row:
-                    print(elem, "->", self.__solver.Value(elem))
+            for x_coordinate, row in enumerate(self.rightMatrix):
+                for y_coordinate, elem in enumerate(row):
+
+                    if self.__solver.Value(elem) == 1:
+                        self.__solutionMatrix[x_coordinate][y_coordinate] = "/"
+            
+            pprint(self.__solutionMatrix)
         else:
             print('No solution found.')
 
