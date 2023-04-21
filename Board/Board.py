@@ -168,35 +168,9 @@ class Board:
                 all_solutions.append(self.__literal_to_matrix(combined))
 
         return all_solutions
-
-
-        # if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        #     print("left matrix")
-        #     for x_coordinate, row in enumerate(self.leftMatrix):
-        #         for y_coordinate, elem in enumerate(row):
-
-        #             if self.__solver.Value(elem) == 1:
-        #                 self.__solutionMatrix[x_coordinate][y_coordinate] = -1#"\\"
-
-        #     print("right matrix")
-        #     for x_coordinate, row in enumerate(self.rightMatrix):
-        #         for y_coordinate, elem in enumerate(row):
-
-        #             if self.__solver.Value(elem) == 1:
-        #                 self.__solutionMatrix[x_coordinate][y_coordinate] = 1#"/"
-            
-        #     pprint(self.__solutionMatrix)
-        # else:
-        #     print('No solution found.')
-        
-        # print("---->", len(solutionCollector.left_solution_list))
-
-        # for solution in solutionCollector.left_solution_list:
-        #     print(solution)
-        #     print()
-
-        return self.__solutionMatrix
-
+    
+    def getNumberOfBacktracks(self):
+        return self.__solver.NumBooleans()
     
     
 

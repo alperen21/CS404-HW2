@@ -26,6 +26,7 @@ def main():
     solution_matrix = board.solve()
 
     pprint(translate(getAcylicSolution(solution_matrix)))
+    print(board.getNumberOfBacktracks())
 
 
 
